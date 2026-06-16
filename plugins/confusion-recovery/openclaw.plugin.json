@@ -1,0 +1,14 @@
+{
+  "id": "confusion-recovery",
+  "name": "Confusion recovery",
+  "description": "When a tool fails repeatedly with the same error, append a recovery hint (built from that tool's recent in-session history) to the tool-result message so the agent breaks the loop. (critique P1-2b)",
+  "version": "0.1.0",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "threshold": { "type": "number", "description": "Consecutive same-error failures before a hint is injected (default 2)." },
+      "maxHistory": { "type": "number", "description": "Recent calls per tool to keep for the hint (default 5)." }
+    }
+  }
+}

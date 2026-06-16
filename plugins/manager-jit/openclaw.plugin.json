@@ -1,0 +1,14 @@
+{
+  "id": "manager-jit",
+  "name": "Manager JIT memory + runbook",
+  "description": "before_prompt_build: rebuilds MEMORY.md on change and injects it, plus the prompt-relevant sections of MANAGER-RUNBOOK.md under a byte budget. Manager (main) only. (critique P2-1 + P1-1)",
+  "version": "0.1.0",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "agentId": { "type": "string", "description": "Only inject for this agent id (default: main)." },
+      "runbookByteBudget": { "type": "number", "description": "Max bytes of runbook sections to inject per turn (default 6000). [always] is always included." }
+    }
+  }
+}

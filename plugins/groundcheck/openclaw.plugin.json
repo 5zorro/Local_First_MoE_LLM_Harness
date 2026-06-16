@@ -1,0 +1,11 @@
+{
+  "id": "groundcheck",
+  "name": "Ground Check",
+  "description": "Deterministic grounding gate: forces a re-read when the agent answers about a referenced file/scripture without opening it.",
+  "version": "0.1.0",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

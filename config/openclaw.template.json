@@ -1,0 +1,717 @@
+{
+  "agents": {
+    "defaults": {
+      "workspace": "/home/pi/.openclaw/workspace",
+      "userTimezone": "America/Denver",
+      "model": {
+        "primary": "ollama/gpt-oss:20b",
+        "fallbacks": [
+          "ollama/gemma4:latest"
+        ]
+      },
+      "models": {
+        "google/gemini-3.1-pro-preview": {},
+        "ollama/gemma4:latest": {},
+        "ollama/gpt-oss:20b": {},
+        "ollama/trinhnv1205/Qwen3.5-9B-Uncensored-ctx64k:latest": {},
+        "ollama/aware/qwen3.6-40b-deck-opus-neo-code:latest": {},
+        "ollama/qwen3.5:latest": {}
+      },
+      "verboseDefault": "on",
+      "toolProgressDetail": "explain",
+      "bootstrapMaxChars": 20000,
+      "memorySearch": {
+        "provider": "ollama",
+        "model": "nomic-embed-text",
+        "extraPaths": [
+          "/home/pi/agent-harness/debriefs",
+          "/home/pi/agent-harness/memory"
+        ]
+      },
+      "compaction": {
+        "notifyUser": true,
+        "reserveTokensFloor": 16384,
+        "keepRecentTokens": 12000,
+        "memoryFlush": {
+          "enabled": true,
+          "model": "ollama/gemma4:latest",
+          "prompt": "Session nearing compaction. Write the current task state to /home/pi/agent-harness/memory/scratch.md, then run /home/pi/agent-harness/scripts/build-manager-memory.sh so the next window reloads it. Reply with the exact silent token NO_REPLY if there is nothing to store."
+        }
+      },
+      "subagents": {
+        "maxSpawnDepth": 1,
+        "maxConcurrent": 6,
+        "delegationMode": "prefer",
+        "runTimeoutSeconds": 300,
+        "model": "ollama/gemma4:latest",
+        "allowAgents": [
+          "codebase-index",
+          "tool-use",
+          "todo-expert",
+          "identity-keeper",
+          "ops-expert",
+          "critic"
+        ]
+      }
+    },
+    "list": [
+      {
+        "id": "main",
+        "default": true,
+        "workspace": "/home/pi/.openclaw/workspace",
+        "tools": {
+          "deny": [
+            "web_fetch",
+            "web_search",
+            "x_search",
+            "browser"
+          ]
+        },
+        "model": {
+          "primary": "ollama/qwen3.5:latest",
+          "fallbacks": [
+            "ollama/gemma4:latest"
+          ]
+        },
+        "models": {
+          "ollama/qwen3.5:latest": {},
+          "ollama/gemma4:latest": {}
+        }
+      },
+      {
+        "id": "codebase-index",
+        "workspace": "/home/pi/agent-harness/workspaces/codebase-index",
+        "model": "ollama/gemma4:latest",
+        "tools": {
+          "allow": [
+            "read",
+            "exec"
+          ]
+        }
+      },
+      {
+        "id": "tool-use",
+        "workspace": "/home/pi/agent-harness/workspaces/tool-use",
+        "model": "ollama/gemma4:latest",
+        "tools": {
+          "allow": [
+            "read",
+            "web_fetch",
+            "web_search"
+          ]
+        }
+      },
+      {
+        "id": "todo-expert",
+        "workspace": "/home/pi/agent-harness/workspaces/todo-expert",
+        "model": "ollama/gemma4:latest",
+        "tools": {
+          "allow": [
+            "read",
+            "write",
+            "edit"
+          ]
+        }
+      },
+      {
+        "id": "identity-keeper",
+        "workspace": "/home/pi/agent-harness/workspaces/identity-keeper",
+        "model": "ollama/gemma4:latest",
+        "tools": {
+          "allow": [
+            "read",
+            "write"
+          ]
+        }
+      },
+      {
+        "id": "ops-expert",
+        "workspace": "/home/pi/agent-harness/workspaces/ops-expert",
+        "model": "ollama/gemma4:latest",
+        "tools": {
+          "allow": [
+            "exec",
+            "read",
+            "write"
+          ]
+        }
+      },
+      {
+        "id": "critic",
+        "workspace": "/home/pi/agent-harness/workspaces/critic",
+        "model": "ollama/gpt-oss:20b",
+        "tools": {
+          "allow": [
+            "read"
+          ]
+        }
+      },
+      {
+        "id": "cloud",
+        "workspace": "/home/pi/.openclaw/workspace-cloud",
+        "model": {
+          "primary": "google/gemini-3.1-pro-preview",
+          "fallbacks": [
+            "ollama/gemma4:latest"
+          ]
+        },
+        "tools": {
+          "fs": {
+            "workspaceOnly": true
+          },
+          "deny": [
+            "write",
+            "edit",
+            "group:web",
+            "browser"
+          ]
+        }
+      }
+    ]
+  },
+  "gateway": {
+    "mode": "local",
+    "auth": {
+      "mode": "token",
+      "token": "REPLACE_WITH_A_RANDOM_TOKEN",
+      "rateLimit": {
+        "maxAttempts": 10,
+        "windowMs": 60000,
+        "lockoutMs": 300000
+      }
+    },
+    "port": 18789,
+    "bind": "lan",
+    "tailscale": {
+      "mode": "off",
+      "resetOnExit": false
+    },
+    "controlUi": {
+      "allowedOrigins": [
+        "http://localhost:18789",
+        "http://127.0.0.1:18789"
+      ]
+    },
+    "nodes": {
+      "denyCommands": [
+        "camera.snap",
+        "camera.clip",
+        "screen.record",
+        "contacts.add",
+        "calendar.add",
+        "reminders.add",
+        "sms.send",
+        "sms.search"
+      ]
+    }
+  },
+  "session": {
+    "dmScope": "per-channel-peer",
+    "maintenance": {
+      "mode": "enforce",
+      "pruneAfter": "14d",
+      "maxEntries": 40,
+      "resetArchiveRetention": "14d"
+    }
+  },
+  "security": {
+    "audit": {
+      "suppressions": [
+        {
+          "checkId": "tools.exec.fs_tools_disabled_but_exec_enabled",
+          "detailIncludes": "codebase-index",
+          "reason": "exec is restricted to read-only commands via exec-approvals allowlist (no write/curl binaries); workspace search needs exec."
+        },
+        {
+          "checkId": "tools.exec.allowlist_interpreter_without_strict_inline_eval",
+          "reason": "find/sed/awk are egress-locked (no curl/wget/interpreters allowlisted; exec-approvals limits binaries). strictInlineEval re-enable pending a harness-script regression test."
+        },
+        {
+          "checkId": "models.weak_tier",
+          "reason": "intentional local-first/privacy; mitigated by the tool-use firewall, read-only Critic, and fail-closed-local model chain."
+        },
+        {
+          "checkId": "security.trust_model.multi_user_heuristic",
+          "reason": "single operator (the operator); matrix dm/group allowlist is @you only; not multi-tenant."
+        },
+        {
+          "checkId": "plugins.extensions_no_allowlist",
+          "reason": "plugins.allow is a TOTAL allowlist: enabling it disabled 88/98 bundled plugins incl canvas (diffs view-mode), active-memory, document-extract (verified 2026-06-14; prior decisions 2026-06-04 & 2026-06-08). Only one trusted extension (matrix) is present, so breakage risk outweighs the warning."
+        }
+      ]
+    }
+  },
+  "tools": {
+    "profile": "coding",
+    "elevated": {
+      "enabled": false
+    },
+    "byProvider": {
+      "ollama/gpt-oss:20b": {
+        "deny": [
+          "group:web",
+          "browser"
+        ]
+      }
+    },
+    "web": {
+      "search": {
+        "provider": "duckduckgo",
+        "enabled": true,
+        "openaiCodex": {}
+      },
+      "fetch": {
+        "enabled": true
+      }
+    },
+    "alsoAllow": [
+      "diffs"
+    ]
+  },
+  "models": {
+    "mode": "merge",
+    "providers": {
+      "ollama": {
+        "baseUrl": "http://YOUR_OLLAMA_HOST:11434",
+        "api": "ollama",
+        "apiKey": "ollama-local",
+        "models": [
+          {
+            "id": "gemma4:latest",
+            "name": "gemma4 (Windows Ollama)",
+            "contextWindow": 32768,
+            "maxTokens": 8192,
+            "input": [
+              "text",
+              "image",
+              "audio"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "reasoning": true,
+            "params": {
+              "num_ctx": 32768
+            }
+          },
+          {
+            "id": "gpt-oss:20b",
+            "name": "gpt-oss:20b (Windows Ollama)",
+            "contextWindow": 32768,
+            "maxTokens": 4096,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "reasoning": true,
+            "params": {
+              "num_ctx": 32768
+            }
+          },
+          {
+            "id": "trinhnv1205/Qwen3.5-9B-Uncensored-ctx64k:latest",
+            "name": "Qwen3.5-9B Uncensored 64k (Windows Ollama)",
+            "contextWindow": 32768,
+            "maxTokens": 8192,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "reasoning": true,
+            "params": {
+              "num_ctx": 32768
+            }
+          },
+          {
+            "id": "aware/qwen3.6-40b-deck-opus-neo-code:latest",
+            "name": "Qwen3.6-40B code (Windows Ollama)",
+            "contextWindow": 32768,
+            "maxTokens": 8192,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "reasoning": true,
+            "params": {
+              "num_ctx": 32768
+            }
+          },
+          {
+            "id": "qwen3.5:latest",
+            "name": "Qwen3.5 vanilla (Windows Ollama)",
+            "contextWindow": 49152,
+            "maxTokens": 8192,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "reasoning": true,
+            "params": {
+              "num_ctx": 49152
+            }
+          }
+        ],
+        "auth": "api-key"
+      },
+      "google": {
+        "api": "google-generative-ai",
+        "apiKey": "${GEMINI_API_KEY}",
+        "models": [
+          {
+            "id": "gemini-3.1-pro-preview",
+            "name": "Gemini 3.1 Pro",
+            "input": [
+              "text",
+              "image"
+            ],
+            "contextWindow": 1048576,
+            "reasoning": true
+          },
+          {
+            "id": "gemini-3-flash-preview",
+            "name": "Gemini 3 Flash",
+            "input": [
+              "text",
+              "image"
+            ],
+            "contextWindow": 1048576,
+            "reasoning": true
+          }
+        ]
+      }
+    }
+  },
+  "skills": {
+    "install": {
+      "nodeManager": "npm"
+    },
+    "entries": {
+      "1password": {
+        "enabled": false
+      },
+      "apple-notes": {
+        "enabled": false
+      },
+      "apple-reminders": {
+        "enabled": false
+      },
+      "bear-notes": {
+        "enabled": false
+      },
+      "blogwatcher": {
+        "enabled": false
+      },
+      "blucli": {
+        "enabled": false
+      },
+      "bluebubbles": {
+        "enabled": false
+      },
+      "camsnap": {
+        "enabled": false
+      },
+      "clawhub": {
+        "enabled": false
+      },
+      "coding-agent": {
+        "enabled": false
+      },
+      "discord": {
+        "enabled": false
+      },
+      "gemini": {
+        "enabled": false
+      },
+      "gifgrep": {
+        "enabled": false
+      },
+      "gog": {
+        "enabled": false
+      },
+      "goplaces": {
+        "enabled": false
+      },
+      "himalaya": {
+        "enabled": false
+      },
+      "imsg": {
+        "enabled": false
+      },
+      "mcporter": {
+        "enabled": false
+      },
+      "model-usage": {
+        "enabled": false
+      },
+      "notion": {
+        "enabled": false
+      },
+      "openai-whisper-api": {
+        "enabled": false
+      },
+      "openhue": {
+        "enabled": false
+      },
+      "oracle": {
+        "enabled": false
+      },
+      "ordercli": {
+        "enabled": false
+      },
+      "peekaboo": {
+        "enabled": false
+      },
+      "sag": {
+        "enabled": false
+      },
+      "session-logs": {
+        "enabled": false
+      },
+      "sherpa-onnx-tts": {
+        "enabled": false
+      },
+      "slack": {
+        "enabled": false
+      },
+      "songsee": {
+        "enabled": false
+      },
+      "sonoscli": {
+        "enabled": false
+      },
+      "spotify-player": {
+        "enabled": false
+      },
+      "summarize": {
+        "enabled": false
+      },
+      "things-mac": {
+        "enabled": false
+      },
+      "trello": {
+        "enabled": false
+      },
+      "voice-call": {
+        "enabled": false
+      },
+      "wacli": {
+        "enabled": false
+      },
+      "xurl": {
+        "enabled": false
+      },
+      "taskflow-inbox-triage": {
+        "enabled": false
+      },
+      "tmux": {
+        "enabled": false
+      },
+      "skill-creator": {
+        "enabled": true
+      },
+      "obsidian": {
+        "enabled": false
+      }
+    }
+  },
+  "hooks": {
+    "internal": {
+      "enabled": true,
+      "entries": {
+        "boot-md": {
+          "enabled": true
+        },
+        "bootstrap-extra-files": {
+          "enabled": true,
+          "paths": []
+        },
+        "command-logger": {
+          "enabled": true
+        },
+        "session-memory": {
+          "enabled": true
+        }
+      }
+    }
+  },
+  "wizard": {
+    "lastRunAt": "2026-06-10T06:13:50.230Z",
+    "lastRunVersion": "2026.6.5",
+    "lastRunCommand": "doctor",
+    "lastRunMode": "local"
+  },
+  "meta": {
+    "lastTouchedVersion": "2026.6.5",
+    "lastTouchedAt": "2026-06-15T05:19:34.097Z"
+  },
+  "plugins": {
+    "entries": {
+      "ollama": {
+        "enabled": true,
+        "config": {
+          "discovery": {
+            "enabled": true
+          }
+        }
+      },
+      "duckduckgo": {
+        "enabled": true,
+        "config": {
+          "webSearch": {
+            "region": "us-en",
+            "safeSearch": "strict"
+          }
+        }
+      },
+      "memory-core": {
+        "config": {
+          "dreaming": {
+            "enabled": false
+          }
+        },
+        "enabled": true
+      },
+      "memory-wiki": {
+        "enabled": true
+      },
+      "matrix": {
+        "enabled": true
+      },
+      "xai": {
+        "enabled": false
+      },
+      "zai": {
+        "enabled": false
+      },
+      "google": {
+        "enabled": true
+      },
+      "diffs": {
+        "enabled": true,
+        "config": {
+          "defaults": {
+            "theme": "dark",
+            "layout": "unified",
+            "showLineNumbers": true,
+            "wordWrap": true,
+            "fileFormat": "png",
+            "fileQuality": "standard",
+            "fileScale": 2,
+            "fileMaxWidth": 960,
+            "mode": "both",
+            "ttlSeconds": 3600
+          },
+          "security": {
+            "allowRemoteViewer": false
+          }
+        }
+      },
+      "groundcheck": {
+        "enabled": true,
+        "hooks": {
+          "allowConversationAccess": true
+        }
+      },
+      "browser": {
+        "enabled": true
+      },
+      "policy": {
+        "enabled": true
+      },
+      "web-allowlist": {
+        "enabled": true
+      },
+      "manager-jit": {
+        "enabled": true,
+        "hooks": {
+          "allowConversationAccess": true
+        }
+      },
+      "confusion-recovery": {
+        "enabled": true,
+        "hooks": {
+          "allowConversationAccess": true
+        }
+      }
+    },
+    "load": {
+      "paths": [
+        "/home/pi/agent-harness/plugins/groundcheck",
+        "/home/pi/agent-harness/plugins/web-allowlist",
+        "/home/pi/agent-harness/plugins/manager-jit",
+        "/home/pi/agent-harness/plugins/confusion-recovery"
+      ]
+    }
+  },
+  "channels": {
+    "matrix": {
+      "enabled": false,
+      "name": "Your Agent (harness)",
+      "homeserver": "http://YOUR_MATRIX_HOST:8008",
+      "userId": "@youragent:your.server",
+      "accessToken": "REPLACE_WITH_MATRIX_ACCESS_TOKEN",
+      "deviceId": "REPLACE_WITH_DEVICE_ID",
+      "encryption": true,
+      "network": {
+        "dangerouslyAllowPrivateNetwork": true
+      },
+      "dm": {
+        "policy": "allowlist",
+        "allowFrom": [
+          "@you:your.server"
+        ]
+      },
+      "groupPolicy": "allowlist",
+      "groupAllowFrom": [
+        "@you:your.server"
+      ],
+      "autoJoin": "allowlist",
+      "autoJoinAllowlist": [
+        "#your-alerts-room:your.server"
+      ],
+      "groups": {
+        "!YOUR_ROOM_ID:your.server": {
+          "requireMention": false,
+          "users": [
+            "@you:your.server"
+          ]
+        }
+      },
+      "execApprovals": {
+        "enabled": true,
+        "approvers": [
+          "@you:your.server"
+        ],
+        "target": "channel"
+      },
+      "allowlistOnly": true,
+      "password": "REPLACE_WITH_MATRIX_PASSWORD"
+    }
+  },
+  "browser": {
+    "executablePath": "/path/to/playwright/chromium/chrome"
+  }
+}

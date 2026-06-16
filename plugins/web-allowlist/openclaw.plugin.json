@@ -1,0 +1,17 @@
+{
+  "id": "web-allowlist",
+  "name": "Web egress allowlist",
+  "description": "Blocks web_fetch to any host not on a configured allowlist (egress control at the tool layer; spec §3.10 L4 / critique P1-3).",
+  "version": "0.1.0",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "allowDomains": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Allowed fetch hosts. A bare domain (github.com) also matches its subdomains; use *.example.com for subdomain-only. Empty/unset = built-in default list."
+      }
+    }
+  }
+}

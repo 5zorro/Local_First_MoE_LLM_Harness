@@ -1,0 +1,29 @@
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OpenClaw runtime state in expert workspaces (regenerated on first run)
+workspaces/*/.openclaw/
+
+# Auto-seeded blank bootstrap templates (OpenClaw recreates these on first run).
+# Only SOUL.md and AGENTS.md are authored/tracked per expert.
+workspaces/*/IDENTITY.md
+workspaces/*/USER.md
+workspaces/*/HEARTBEAT.md
+
+# python bytecode
+__pycache__/
+*.pyc
+
+# ralph loop transient artifacts
+ralph/STOP
+ralph/run-*.log
+ralph/output.md
+ralph/DONE
+ralph/plan.md
+
+# expert dreaming/runtime artifacts (memory-core plugin output — not config)
+workspaces/*/DREAMS.md
+workspaces/*/memory/
+ralph/.running

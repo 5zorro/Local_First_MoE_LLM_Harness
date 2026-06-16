@@ -1,0 +1,13 @@
+{
+  "name": "web-allowlist",
+  "version": "0.1.0",
+  "description": "Mechanical web_fetch egress allowlist for OpenClaw (critique P1-3 / spec §3.10 L4).",
+  "type": "module",
+  "main": "index.js",
+  "openclaw": {
+    "extensions": ["./index.js"]
+  },
+  "peerDependencies": {
+    "openclaw": ">=2026.6.1"
+  }
+}

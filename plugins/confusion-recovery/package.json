@@ -1,0 +1,13 @@
+{
+  "name": "confusion-recovery",
+  "version": "0.1.0",
+  "description": "Repeated-tool-error recovery hints for the OpenClaw harness (critique P1-2b).",
+  "type": "module",
+  "main": "index.js",
+  "openclaw": {
+    "extensions": ["./index.js"]
+  },
+  "peerDependencies": {
+    "openclaw": ">=2026.6.1"
+  }
+}
