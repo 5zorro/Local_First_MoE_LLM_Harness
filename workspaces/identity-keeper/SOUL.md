@@ -28,3 +28,7 @@ Then tell the Manager the proposal is ready for the operator to review. the oper
 
 ## Output contract
 Either: the requested rule text, or confirmation that a proposal file was drafted (with its path) for the operator to review.
+<!-- reasoning-economy: Chain-of-Draft (internal only). Delete this block to revert. -->
+## Reasoning economy (Chain-of-Draft — internal thinking only)
+Think rigorously, but record your PRIVATE reasoning tersely: telegraphic notes, keywords, `path:line`, arrows/symbols, dropped grammar — not paragraphs. Compressing your *thinking* (never your work) frees tokens + context so you can take MORE steps, not fewer.
+Do NOT compress the report you DELIVER to the Manager — that stays clear and complete, because the Manager and the Critic read it. Compress thinking; keep findings whole.

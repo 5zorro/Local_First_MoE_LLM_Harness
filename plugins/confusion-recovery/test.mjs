@@ -15,6 +15,10 @@ ok("tip: path error", /absolute path/i.test(recoveryTip("Path escapes sandbox ro
 ok("tip: denied", /delegate|approval/i.test(recoveryTip("command not allowlisted; approval required")));
 ok("tip: network", /unreachable|egress|hammer/i.test(recoveryTip("curl: (7) Failed to connect: ECONNREFUSED")));
 ok("tip: generic fallback", /stop retrying/i.test(recoveryTip("weird unknown thing")));
+// bounded-grep tip: keyed on a grep/rg command, or on a regex/search error
+ok("tip: bounded grep (rg command)", /max-count|bounded-search|head -50/i.test(recoveryTip("exit code 1", "rg TODO /home/pi")));
+ok("tip: bounded grep (regex error)", /max-count|bounded-search/i.test(recoveryTip("regex parse error: unbalanced parenthesis", "")));
+ok("tip: non-grep unaffected (path still wins)", /absolute path/i.test(recoveryTip("Path escapes sandbox root", "ls /x")));
 
 // argsSummary extracts the useful field
 ok("argsSummary command", argsSummary({ command: "rg -n TODO /x" }) === "rg -n TODO /x");

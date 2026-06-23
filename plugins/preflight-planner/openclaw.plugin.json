@@ -1,0 +1,26 @@
+{
+  "id": "preflight-planner",
+  "name": "Preflight planner (critic-first)",
+  "description": "before_prompt_build (main only): on non-trivial turns, a stronger local planner (gpt-oss) emits the solution rubric + an explicit expert-dispatch list and injects it so the weak manager EXECUTES a concrete plan instead of free-soloing. Reuses the rubric at the Critic. Ralph-aware (freeze rubric iter 1; reasonableness gate iter 2+). Enforcement gate (shadow|enforce) on write/exec turns that skip delegation/Critic. #hottake disables the harness for one turn. Fail-open. (critique P1)",
+  "version": "0.1.0",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "enabled": { "type": "boolean", "description": "Master switch (default true)." },
+      "agentId": { "type": "string", "description": "Only act for this agent id (default: main)." },
+      "plannerModel": { "type": "string", "description": "Ollama model for the planner + reasonableness call (default gpt-oss:20b). gemma4:12b is a lighter alternative that also keeps planner≠critic independence." },
+      "ollamaUrl": { "type": "string", "description": "Ollama base URL (default http://127.0.0.1:11434 — Windows host from WSL2)." },
+      "plannerTimeoutMs": { "type": "number", "description": "Hard timeout for the planner call; on timeout the turn proceeds unplanned (default 120000)." },
+      "reasonablenessTimeoutMs": { "type": "number", "description": "Hard timeout for the Ralph reasonableness call (default 60000)." },
+      "byteBudget": { "type": "number", "description": "Max bytes of injected plan context per turn (default 3500)." },
+      "gateMode": { "type": "string", "enum": ["shadow", "enforce"], "description": "Enforcement gate: 'shadow' logs would-fire turns only; 'enforce' forces one revise pass (default shadow)." },
+      "progress": { "type": "boolean", "description": "Prepend a '⏱ Ns consumed · +Ns on <step> · step n/x+' header to visible manager replies so per-step elapsed time is visible (default true). Needs hooks.allowConversationAccess." },
+      "statusKey": { "type": "string", "description": "Key for the live status page at GET /harness-status (non-localhost access requires ?key=<this>). Defaults to the gateway auth token. Set a dedicated value to avoid putting the gateway token in a URL." },
+      "notifyAfterSeconds": { "type": "number", "description": "Ping Windows (via notifyCmd) once when an expert wait exceeds this many seconds — likely blocked on an exec approval (default 150; 0 disables)." },
+      "notifyCmd": { "type": "string", "description": "Command run with the alert message as its only arg when notifyAfterSeconds is exceeded (default scripts/notify-windows.sh, which pops a msg.exe dialog on Windows)." },
+      "harnessDir": { "type": "string", "description": "Harness root for rubric/plan/log files (default $HARNESS_ROOT or /home/pi/agent-harness)." },
+      "experts": { "type": "array", "description": "Override the dispatchable expert roster (id + role). Defaults mirror agents.list.", "items": { "type": "object" } }
+    }
+  }
+}

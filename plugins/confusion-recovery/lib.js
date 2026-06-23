@@ -27,8 +27,17 @@ const TIPS = [
   [/(unexpected token|parse|invalid json|syntax error|malformed)/,
    "Format issue: the input/command is malformed — fix the syntax instead of re-sending the same payload."],
 ];
-export function recoveryTip(error) {
+export function recoveryTip(error, summary = "") {
   const s = String(error || "").toLowerCase();
+  const cmd = String(summary || "").toLowerCase();
+  // grep/search confusion → teach ONE tight, bounded search instead of re-scanning the tree
+  if (/(^|[^a-z])(rg|grep|egrep|fgrep|ag|ripgrep)([^a-z]|$)/.test(cmd) ||
+      /(regex|invalid pattern|unbalanced|argument list too long|binary file matches|no matches)/.test(s)) {
+    return "Bounded-search fix: scope AND cap the search — `rg -n --max-count=20 -F 'literal' <specific/path>` " +
+      "(or a precise anchored regex), narrow file types with `--glob '*.ext'`, and pipe `| head -50` to cap output. " +
+      "Don't scan the whole tree, and don't put an unescaped shell glob in a path (e.g. `memory/2026-*.md` won't " +
+      "expand for a missing file) — list the directory first, then read an exact file.";
+  }
   for (const [re, tip] of TIPS) if (re.test(s)) return tip;
   return "You've hit the same error repeatedly — stop retrying the identical call. Change an input, verify your assumptions, or delegate.";
 }
@@ -48,6 +57,7 @@ export function argsSummary(params) {
 export function buildHint({ toolName, agentId, consec, history, error }) {
   const recent = (history || []).slice(-5).map((h) => `  - ${h.ok ? "ok " : "ERR"} ${h.summary}`).join("\n");
   const lastOk = [...(history || [])].reverse().find((h) => h.ok);
+  const lastSummary = (history && history.length) ? history[history.length - 1].summary : "";
   const a = agentId || "this agent";
   return [
     ``,
@@ -55,7 +65,7 @@ export function buildHint({ toolName, agentId, consec, history, error }) {
     `Recent \`${toolName}\` calls this session (newest last):`,
     recent || "  (no prior calls recorded)",
     lastOk ? `It last SUCCEEDED with: ${lastOk.summary}` : `No successful \`${toolName}\` call recorded this session.`,
-    `Likely fix: ${recoveryTip(error)}`,
+    `Likely fix: ${recoveryTip(error, lastSummary)}`,
     `If this is a real recurring gotcha, add ONE concise dated line to ${a}'s TOOLS.md (workspaces/${a}/TOOLS.md).`,
   ].join("\n");
 }

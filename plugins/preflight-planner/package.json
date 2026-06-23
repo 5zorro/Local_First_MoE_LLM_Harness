@@ -1,0 +1,13 @@
+{
+  "name": "preflight-planner",
+  "version": "0.1.0",
+  "description": "Critic-first preflight planner for the OpenClaw harness (critique P1): planner emits rubric + dispatch before the weak manager acts; enforcement gate catches skipped delegation/Critic.",
+  "type": "module",
+  "main": "index.js",
+  "openclaw": {
+    "extensions": ["./index.js"]
+  },
+  "peerDependencies": {
+    "openclaw": ">=2026.6.1"
+  }
+}

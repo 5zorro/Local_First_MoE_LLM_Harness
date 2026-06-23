@@ -40,9 +40,9 @@
       },
       "subagents": {
         "maxSpawnDepth": 1,
-        "maxConcurrent": 6,
+        "maxConcurrent": 1,
         "delegationMode": "prefer",
-        "runTimeoutSeconds": 300,
+        "runTimeoutSeconds": 480,
         "model": "ollama/gemma4:latest",
         "allowAgents": [
           "codebase-index",
@@ -52,7 +52,8 @@
           "ops-expert",
           "critic"
         ]
-      }
+      },
+      "timeoutSeconds": 600
     },
     "list": [
       {
@@ -655,6 +656,23 @@
         "hooks": {
           "allowConversationAccess": true
         }
+      },
+      "preflight-planner": {
+        "enabled": true,
+        "hooks": {
+          "allowConversationAccess": true,
+          "timeoutMs": 90000
+        },
+        "config": {
+          "agentId": "main",
+          "plannerModel": "gpt-oss:20b",
+          "ollamaUrl": "http://127.0.0.1:11434",
+          "gateMode": "enforce",
+          "plannerTimeoutMs": 85000,
+          "reasonablenessTimeoutMs": 85000,
+          "progress": true,
+          "notifyAfterSeconds": 150
+        }
       }
     },
     "load": {
@@ -662,7 +680,8 @@
         "/home/pi/agent-harness/plugins/groundcheck",
         "/home/pi/agent-harness/plugins/web-allowlist",
         "/home/pi/agent-harness/plugins/manager-jit",
-        "/home/pi/agent-harness/plugins/confusion-recovery"
+        "/home/pi/agent-harness/plugins/confusion-recovery",
+        "/home/pi/agent-harness/plugins/preflight-planner"
       ]
     }
   },
